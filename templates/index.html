@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hinata Bot | Elite Command Center</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <nav class="glass-navbar">
+      <div class="nav-logo">
+        <i class="fas fa-robot"></i>
+        <span>HINATA <span class="v-tag">v2.5</span></span>
+      </div>
+      <div class="nav-status">
+        <span id="bot-status-dot" class="status-dot"></span>
+        <span id="bot-status-text">Connecting...</span>
+      </div>
+    </nav>
+
+    <main class="dashboard-container">
+      <!-- Stats Row -->
+      <section class="stats-grid">
+        <div class="glass-card stat-card">
+          <i class="fas fa-users"></i>
+          <div class="stat-info">
+            <h3>Total Users</h3>
+            <p id="stat-users">0</p>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <i class="fas fa-users-rectangle"></i>
+          <div class="stat-info">
+            <h3>Total Groups</h3>
+            <p id="stat-groups">0</p>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <i class="fas fa-paper-plane"></i>
+          <div class="stat-info">
+            <h3>Broadcasts</h3>
+            <p id="stat-broadcasts">0</p>
+          </div>
+        </div>
+        <div class="glass-card stat-card">
+          <i class="fas fa-clock"></i>
+          <div class="stat-info">
+            <h3>Uptime</h3>
+            <p id="stat-uptime">00:00:00</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Control and Logs Row -->
+      <section class="main-grid">
+        <!-- Control Panel -->
+        <div class="glass-card control-panel">
+          <div class="card-header">
+            <h2><i class="fas fa-sliders-h"></i> Control Center</h2>
+          </div>
+          <div class="control-groups">
+            <div class="control-group">
+              <label>Broadcast Message</label>
+              <textarea
+                id="broadcast-msg"
+                placeholder="Type your announcement here..."
+              ></textarea>
+              <div class="btn-row">
+                <button onclick="sendBroadcast('all')" class="btn btn-primary">
+                  <i class="fas fa-broadcast-tower"></i> Global
+                </button>
+                <button
+                  onclick="sendBroadcast('users')"
+                  class="btn btn-secondary"
+                >
+                  <i class="fas fa-user"></i> Users
+                </button>
+                <button
+                  onclick="sendBroadcast('groups')"
+                  class="btn btn-accent"
+                >
+                  <i class="fas fa-users"></i> Groups
+                </button>
+                <button
+                  onclick="controlBot('delete_broadcast')"
+                  class="btn btn-danger"
+                >
+                  <i class="fas fa-eraser"></i> Delete Last
+                </button>
+              </div>
+            </div>
+            
+            <!-- Advanced Owner Commands -->
+            <div class="control-group">
+              <label>Advanced Commands</label>
+              <div class="command-inputs">
+                <input type="text" id="cmd-chat-id" placeholder="Chat ID" />
+                <input type="text" id="cmd-user-id" placeholder="User ID" />
+              </div>
+              <div class="btn-row">
+                <button onclick="executeCommand('ban')" class="btn btn-danger">
+                  <i class="fas fa-ban"></i> Ban User
+                </button>
+                <button onclick="executeCommand('unban')" class="btn btn-success">
+                  <i class="fas fa-user-check"></i> Unban
+                </button>
+                <button onclick="executeCommand('kick')" class="btn btn-warning">
+                  <i class="fas fa-user-times"></i> Kick
+                </button>
+                <button onclick="executeCommand('addadmin')" class="btn btn-primary">
+                  <i class="fas fa-user-shield"></i> Add Admin
+                </button>
+              </div>
+            </div>
+            
+            <div class="control-group">
+              <label>System Controls</label>
+              <div class="btn-row">
+                <button
+                  id="power-btn"
+                  onclick="controlBot('toggle_bot')"
+                  class="btn btn-danger"
+                >
+                  <i class="fas fa-power-off"></i> Bot: OFF
+                </button>
+                <button
+                  id="restart-btn"
+                  onclick="controlBot('restart')"
+                  class="btn btn-warning"
+                >
+                  <i class="fas fa-sync"></i> Restart
+                </button>
+                <button
+                  id="access-toggle-btn"
+                  onclick="controlBot('toggle_access')"
+                  class="btn btn-primary"
+                >
+                  <i class="fas fa-lock-open"></i> Public: ON
+                </button>
+                <button
+                  id="clear-logs-btn"
+                  onclick="controlBot('clear_logs')"
+                  class="btn btn-danger"
+                >
+                  <i class="fas fa-trash-alt"></i> Clear Logs
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Logs -->
+        <div class="glass-card logs-panel">
+          <div class="card-header">
+            <h2><i class="fas fa-terminal"></i> Live System Logs</h2>
+            <span class="pulse-icon"></span>
+          </div>
+          <div id="logs-container" class="logs-content">
+            <div class="log-entry system">Initializing Hinata Dashboard...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Commands Reference -->
+      <section class="commands-section">
+        <div class="glass-card commands-panel">
+          <div class="card-header">
+            <h2><i class="fas fa-code"></i> Available Bot Commands</h2>
+          </div>
+          <div class="commands-grid">
+            <div class="command-category">
+              <h3><i class="fas fa-brain"></i> AI Engines</h3>
+              <ul>
+                <li><code>/gemini [prompt]</code> - Gemini 3 Pro AI</li>
+                <li><code>/deepseek [prompt]</code> - DeepSeek v3.2</li>
+                <li><code>/flirt [text]</code> - Romantic AI Assistant</li>
+                <li><code>/code [request]</code> - Code Generator</li>
+                <li><code>/translate [text]</code> - Multi-Language Translator</li>
+                <li><code>/summarize [text]</code> - Text Summarizer</li>
+                <li><code>/grammar [text]</code> - Grammar Checker</li>
+              </ul>
+            </div>
+            
+            <div class="command-category">
+              <h3><i class="fas fa-tools"></i> Utilities</h3>
+              <ul>
+                <li><code>/insta [username]</code> - Instagram Profile Lookup</li>
+                <li><code>/userinfo [id/username]</code> - Telegram User Info</li>
+                <li><code>/ff [uid]</code> - Free Fire Player Stats</li>
+                <li><code>/ffguild [id]</code> - Guild Information</li>
+                <li><code>/fflike [uid]</code> - FF Like Booster</li>
+                <li><code>/qrgen [text]</code> - QR Code Generator</li>
+                <li><code>/qrread</code> - QR Code Scanner (reply to image)</li>
+                <li><code>/bgrem</code> - Background Remover (reply to photo)</li>
+                <li><code>/dl [url]</code> - Media Downloader</li>
+                <li><code>/shorten [url]</code> - URL Shortener</li>
+                <li><code>/tempmail</code> - Temporary Email Generator</li>
+              </ul>
+            </div>
+            
+            <div class="command-category">
+              <h3><i class="fas fa-gamepad"></i> Games & Fun</h3>
+              <ul>
+                <li><code>/ttt</code> - Tic Tac Toe (Multiplayer)</li>
+                <li><code>/tod</code> - Truth or Dare</li>
+                <li><code>/rps</code> - Rock Paper Scissors</li>
+                <li><code>/coin</code> - Coin Flip</li>
+                <li><code>/slot</code> - Slot Machine</li>
+                <li><code>/dice</code> - Roll a Dice</li>
+                <li><code>/riddle</code> - Solve AI-generated riddles</li>
+                <li><code>/guess</code> - Number Guessing Game</li>
+              </ul>
+            </div>
+            
+            <div class="command-category owner-only">
+              <h3><i class="fas fa-crown"></i> Owner Commands</h3>
+              <ul>
+                <li><code>/broadcastall [msg]</code> - Send to all users & groups</li>
+                <li><code>/broadcastuser [msg]</code> - Send to all users</li>
+                <li><code>/broadcast [msg]</code> - Send to all groups</li>
+                <li><code>/delbroadcast</code> - Delete last broadcast</li>
+                <li><code>/gban [user_id]</code> - Global ban user</li>
+                <li><code>/ungban [user_id]</code> - Remove global ban</li>
+                <li><code>/ban [chat_id] [user_id]</code> - Ban from group</li>
+                <li><code>/unban [chat_id] [user_id]</code> - Unban from group</li>
+                <li><code>/kick [chat_id] [user_id]</code> - Kick from group</li>
+                <li><code>/mute [chat_id] [user_id]</code> - Mute user</li>
+                <li><code>/unmute [chat_id] [user_id]</code> - Unmute user</li>
+                <li><code>/addadmin [chat_id] [user_id]</code> - Promote to admin</li>
+                <li><code>/toggle_access</code> - Toggle public/private mode</li>
+                <li><code>/stats</code> - View bot statistics</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Tables Row -->
+      <section class="data-grid">
+        <!-- Registered Users -->
+        <div class="glass-card data-panel">
+          <div class="card-header">
+            <h2><i class="fas fa-user-friends"></i> Registered Users</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Telegram ID</th>
+                  <th>Full Name</th>
+                  <th>Username</th>
+                  <th>Joined At</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr><td colspan="4" class="loading">Fetching users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Active Groups -->
+        <div class="glass-card data-panel">
+          <div class="card-header">
+            <h2><i class="fas fa-users-cog"></i> Managed Groups</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Group ID</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Added At</th>
+                </tr>
+              </thead>
+              <tbody id="groups-table-body">
+                <tr><td colspan="4" class="loading">Fetching groups...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Banned Users -->
+        <div class="glass-card data-panel">
+          <div class="card-header">
+            <h2><i class="fas fa-user-slash"></i> Globally Banned</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="banned-table-body">
+                <tr><td colspan="2" class="loading">Fetching...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="glass-footer">
+      <p>© 2026 Shawon Codes | Powered by Hinata AI Engine</p>
+    </footer>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>
